@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lot Fee Ticket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 50px;
+            background-color: #e0f7fa;
+        }
+        h1 {
+            text-decoration: underline;
+            color: #00796b;
+            margin-bottom: 20px;
+        }
+        .container, .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        input[type="number"], input[type="text"], input[type="password"] {
+            padding: 5px;
+            border: 1px solid #00796b;
+            border-radius: 4px;
+            width: 100px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #00796b;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        .ticket {
+            border: 1px solid #00796b;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            display: none;
+        }
+        .calculation {
+            text-align: left;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Parking Lot Fee Calculator</h1>
+    
+    <!-- Authentication Section -->
+    <div class="auth-container" id="authContainer">
+        <h2>Admin Login</h2>
+        <div class="input-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" />
+        </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" />
+        </div>
+        <button onclick="authenticate()">Login</button>
+        <p id="authMessage" style="color: red;"></p>
+    </div>
+    
+    <!-- Admin Controls (visible after login) -->
+    <div class="container" id="adminContainer" style="display:none;">
+        <div class="input-group">
+            <label for="baseRate">Base Rate:</label>
+            <input type="number" id="baseRate" value="50" step="0.01" />
+        </div>
+        <div class="input-group">
+            <label for="additionalRate">Additional Hour Rate:</label>
+            <input type="number" id="additionalRate" value="50" step="0.01" />
+        </div>
+        <button onclick="updateRates()">Update Rates</button>
+    </div>
+    
+    <!-- Ticket Generation -->
+    <div class="container">
+        <div class="input-group">
+            <label for="hours">Enter hours parked:</label>
+            <input type="number" id="hours" min="0" />
+        </div>
+        <button onclick="generateTicket()">Generate Ticket</button>
+    </div>
+    
+    <!-- Ticket Display -->
+    <div class="ticket" id="ticket">
+        <h2>Parking Fee Ticket</h2>
+        <p id="hoursParked"></p>
+        <p id="totalFee"></p>
+        <div class="calculation" id="calculationDetails"></div>
+    </div>
+
+    <script>
+        // Simulated admin credentials
+        const adminUsername = "vijay";
+        const adminPassword = "vijay@123";
+
+        // State to track authentication and rates
+        let isAuthenticated = false;
+        let baseRate = 50;
+        let additionalRate = 50;
+
+        function authenticate() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === adminUsername && password === adminPassword) {
+                isAuthenticated = true;
+                document.getElementById('authContainer').style.display = "none";
+                document.getElementById('adminContainer').style.display = "flex";
+                document.getElementById('baseRate').value = baseRate;
+                document.getElementById('additionalRate').value = additionalRate;
+            } else {
+                document.getElementById('authMessage').textContent = "Invalid username or password.";
+            }
+        }
+
+        function updateRates() {
+            if (!isAuthenticated) {
+                alert("You must be logged in to update rates.");
+                return;
+            }
+            baseRate = parseFloat(document.getElementById('baseRate').value);
+            additionalRate = parseFloat(document.getElementById('additionalRate').value);
+            alert("Rates updated successfully.");
+        }
+
+        function generateTicket() {
+            // Retrieve input values
+            let hours = parseInt(document.getElementById('hours').value);
+
+            if (isNaN(hours) || hours < 0) {
+                alert("Please enter a valid number of hours.");
+                return;
+            }
+
+            let totalFee;
+            let calculationDetails = "";
+
+            if (hours === 0) {
+                totalFee = 0;
+                calculationDetails = "No fee for 0 hours.";
+            } else if (hours === 1) {
+                totalFee = baseRate;
+                calculationDetails = `Base Fee: Rs ${baseRate.toFixed(2)}`;
+            } else {
+                totalFee = baseRate + (hours - 1) * additionalRate;
+                calculationDetails = `Base Fee: Rs ${baseRate.toFixed(2)}<br>Additional ${hours - 1} hours: Rs ${(hours - 1) * additionalRate.toFixed(2)}`;
+            }
+
+            document.getElementById('hoursParked').textContent = "Hours Parked: " + hours;
+            document.getElementById('totalFee').textContent = "Total Fee: Rs " + totalFee.toFixed(2);
+            document.getElementById('calculationDetails').innerHTML = calculationDetails;
+
+            document.getElementById('ticket').style.display = "block";
+        }
+    </script>
+</body>
+</html>
